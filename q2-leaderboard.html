@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Q2 Weekly Status Leaderboard — Platform Initiatives</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #F7F6F2;
+    --surface:   #FFFFFF;
+    --surface2:  #F0EFE9;
+    --border:    rgba(0,0,0,0.08);
+    --border2:   rgba(0,0,0,0.14);
+    --text:      #1A1A18;
+    --muted:     #6B6B62;
+    --faint:     #9B9B90;
+    --green:     #2D6A2D;
+    --green-bg:  #E8F5E8;
+    --green-mid: #4CAF4C;
+    --amber:     #7A4F00;
+    --amber-bg:  #FFF3CD;
+    --amber-mid: #F5A623;
+    --red:       #8B1A1A;
+    --red-bg:    #FDEAEA;
+    --red-mid:   #E24B4B;
+    --accent:    #1A1A18;
+    --sans:      'DM Sans', sans-serif;
+    --mono:      'DM Mono', monospace;
+    --radius:    10px;
+    --radius-lg: 16px;
+  }
+
+  html { font-size: 15px; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .logo-mark {
+    width: 32px; height: 32px; background: var(--text);
+    border-radius: 8px; display: flex; align-items: center;
+    justify-content: center;
+  }
+  .logo-mark svg { width: 18px; height: 18px; }
+  .header-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .header-sub { font-size: 12px; color: var(--muted); }
+  .last-updated {
+    font-size: 12px; color: var(--muted);
+    font-family: var(--mono); display: flex; align-items: center; gap: 6px;
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--green-mid);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+  /* ── main layout ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 40px 48px 0; }
+
+  /* ── page title ── */
+  .page-header { margin-bottom: 32px; }
+  .page-header h1 { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+  .page-header p { font-size: 14px; color: var(--muted); margin-top: 6px; }
+  .week-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-family: var(--mono);
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 3px 10px; color: var(--muted);
+    margin-top: 10px;
+  }
+
+  /* ── summary cards ── */
+  .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 36px; }
+  .s-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 20px 22px;
+  }
+  .s-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .s-card .value { font-size: 36px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+  .s-card .sublabel { font-size: 11px; color: var(--faint); margin-top: 4px; }
+  .s-card.c-green .value { color: var(--green); }
+  .s-card.c-red .value { color: var(--red); }
+  .s-card.c-amber .value { color: var(--amber); }
+
+  /* ── section headers ── */
+  .section-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-header h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── leaderboard ── */
+  .leaderboard { display: flex; flex-direction: column; gap: 8px; margin-bottom: 40px; }
+  .pm-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 40px 160px 1fr auto auto;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.15s;
+  }
+  .pm-card:hover { border-color: var(--border2); }
+  .pm-card.is-leader { border-color: rgba(76,175,76,0.3); background: #FAFFF9; }
+
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; flex-shrink: 0;
+  }
+  .av-green { background: var(--green-bg); color: var(--green); }
+  .av-amber { background: var(--amber-bg); color: var(--amber); }
+  .av-red   { background: var(--red-bg);   color: var(--red); }
+
+  .pm-info .name { font-size: 14px; font-weight: 500; }
+  .pm-info .count { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+  .bar-area { display: flex; flex-direction: column; gap: 6px; }
+  .bar-track { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+  .bar-fill.green { background: var(--green-mid); }
+  .bar-fill.amber { background: var(--amber-mid); }
+  .bar-fill.red   { background: var(--red-mid);   }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip {
+    font-size: 10px; font-family: var(--mono); padding: 2px 7px;
+    border-radius: 5px; font-weight: 500;
+  }
+  .chip.done { background: var(--green-bg); color: var(--green); }
+  .chip.todo { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+  .pct-badge {
+    font-size: 18px; font-weight: 600; letter-spacing: -0.02em;
+    min-width: 52px; text-align: right;
+  }
+  .pct-badge.green { color: var(--green); }
+  .pct-badge.amber { color: var(--amber); }
+  .pct-badge.red   { color: var(--red); }
+
+  .status-pill {
+    font-size: 11px; font-weight: 500; padding: 4px 10px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .pill-green { background: var(--green-bg); color: var(--green); }
+  .pill-amber { background: var(--amber-bg); color: var(--amber); }
+  .pill-red   { background: var(--red-bg);   color: var(--red); }
+
+  /* ── RAG table ── */
+  .rag-table-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 40px;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { border-bottom: 1px solid var(--border); }
+  thead th {
+    padding: 12px 16px; text-align: left;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 13px 16px; font-size: 13px; vertical-align: middle; }
+  .jira-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    color: #0052CC; text-decoration: none;
+  }
+  .jira-key:hover { text-decoration: underline; }
+  .rag-dot {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .rag-green { background: var(--green-bg); color: var(--green); }
+  .rag-amber { background: var(--amber-bg); color: var(--amber); }
+  .rag-red   { background: var(--red-bg);   color: var(--red); }
+  .delivery-text { font-size: 12px; color: var(--muted); max-width: 360px; line-height: 1.5; }
+
+  /* ── no-update section ── */
+  .no-update-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 40px; }
+  .no-update-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .no-update-card .nu-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .nu-name { font-size: 13px; font-weight: 500; }
+  .nu-count {
+    font-size: 11px; font-family: var(--mono);
+    background: var(--red-bg); color: var(--red);
+    padding: 2px 7px; border-radius: 5px;
+  }
+  .nu-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+
+  /* ── footer ── */
+  .footer {
+    text-align: center; padding: 40px 0 0;
+    font-size: 12px; color: var(--faint); font-family: var(--mono);
+  }
+
+  /* ── loading ── */
+  .loading {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 400px; flex-direction: column; gap: 16px;
+  }
+  .spinner {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2px solid var(--border2); border-top-color: var(--text);
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { font-size: 13px; color: var(--muted); }
+
+  /* ── stagger animations ── */
+  .fade-in { opacity: 0; transform: translateY(12px); animation: fadeUp 0.4s ease forwards; }
+  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+  .pm-card:nth-child(1) { animation-delay: 0.05s; }
+  .pm-card:nth-child(2) { animation-delay: 0.10s; }
+  .pm-card:nth-child(3) { animation-delay: 0.15s; }
+  .pm-card:nth-child(4) { animation-delay: 0.20s; }
+  .pm-card:nth-child(5) { animation-delay: 0.25s; }
+  .pm-card:nth-child(6) { animation-delay: 0.30s; }
+  .pm-card:nth-child(7) { animation-delay: 0.35s; }
+  .pm-card:nth-child(8) { animation-delay: 0.40s; }
+
+  @media (max-width: 900px) {
+    .main { padding: 24px 20px 0; }
+    .header { padding: 0 20px; }
+    .summary { grid-template-columns: repeat(2, 1fr); }
+    .pm-card { grid-template-columns: 40px 1fr; grid-template-rows: auto auto auto; }
+    .no-update-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="logo-mark">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="white"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5" fill="white" opacity="0.5"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5" fill="white" opacity="0.5"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5" fill="white"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">Platform Initiatives</div>
+      <div class="header-sub">Q2 2026 · Weekly Status</div>
+    </div>
+  </div>
+  <div class="last-updated">
+    <span class="live-dot"></span>
+    <span id="last-updated-text">Loading...</span>
+  </div>
+</header>
+
+<main class="main" id="main-content">
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Fetching latest data from Airtable...</p>
+  </div>
+</main>
+
+<script>
+const AIRTABLE_BASE_ID = 'appkWEIQx0exIew5m';
+const INITIATIVES_TABLE = 'tblGQze5y5mu8tgVQ';
+const WEEKLY_UPDATES_TABLE = 'tbl0tzhJVZr4VFgp8';
+
+const PM_INITIATIVES = {
+  'Kolos Takács':    ['DINS-3549'],
+  'Daniel Cossio':   ['DINS-3617','DINS-3573','DINS-3572','DINS-3469'],
+  'Roger Aikema':    ['DINS-3624','DINS-3623','DINS-3513','DINS-3512','DINS-3399','DINS-3391','DINS-3347','DINS-3172'],
+  'Cheryl Chen':     ['DINS-3590','DINS-3571','DINS-3517','DINS-3516','DINS-3515','DINS-3389','DINS-2991'],
+  'Lee Duriez':      ['DINS-3596','DINS-3589','DINS-3521','DINS-3520','DINS-3518'],
+  'Pranesh Soni':    ['DINS-3479','DINS-3473','DINS-3365','DINS-3118'],
+  'Ruben Rejon':     ['DINS-3532','DINS-3464','DINS-3452'],
+  'Aravind Bhaskar': ['DINS-3618','DINS-3369'],
+};
+
+const INITIALS = name => name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+
+const AVATAR_CLASS = pct => pct === 100 ? 'av-green' : pct > 0 ? 'av-amber' : 'av-red';
+const BAR_CLASS    = pct => pct === 100 ? 'green' : pct > 0 ? 'amber' : 'red';
+const PCT_CLASS    = pct => pct === 100 ? 'green' : pct > 0 ? 'amber' : 'red';
+const PILL_CLASS   = pct => pct === 100 ? 'pill-green' : pct > 0 ? 'pill-amber' : 'pill-red';
+const PILL_LABEL   = pct => pct === 100 ? 'On track' : pct > 0 ? 'Partial' : 'Not started';
+
+async function fetchWithToken(url, token) {
+  const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`Airtable error: ${res.status}`);
+  return res.json();
+}
+
+async function loadData(token) {
+  const [updatesData] = await Promise.all([
+    fetchWithToken(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${WEEKLY_UPDATES_TABLE}?fields[]=Jira+Key&fields[]=RAG+Status&fields[]=Delivery+Status&fields[]=Week+of&fields[]=Posted+by&fields[]=Initiatives+with+Beneficiary+Products&sort[0][field]=Week+of&sort[0][direction]=desc`, token)
+  ]);
+  return updatesData.records || [];
+}
+
+function getWeekLabel() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const mon = new Date(d); mon.setDate(d.getDate() + diff);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const fmt = dt => dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return `Week of ${fmt(mon)} – ${fmt(sun)}`;
+}
+
+function buildLeaderboard(records) {
+  // Map jiraKey -> latest update
+  const byKey = {};
+  for (const r of records) {
+    const key = r.fields['Jira Key'];
+    if (key && !byKey[key]) byKey[key] = r.fields;
+  }
+
+  // Build PM stats
+  const pmStats = Object.entries(PM_INITIATIVES).map(([pm, tickets]) => {
+    const updated = tickets.filter(t => byKey[t]);
+    const pct = Math.round((updated.length / tickets.length) * 100);
+    return { pm, tickets, updated, pending: tickets.filter(t => !byKey[t]), pct };
+  }).sort((a,b) => b.pct - a.pct || a.pm.localeCompare(b.pm));
+
+  const totalUpdated = Object.values(PM_INITIATIVES).flat().filter(t => byKey[t]).length;
+  const total = Object.values(PM_INITIATIVES).flat().length;
+  const adoptionPct = Math.round((totalUpdated / total) * 100);
+
+  // RAG snapshot — only updated this week
+  const ragRows = records.filter(r => r.fields['RAG Status'] && r.fields['Jira Key'])
+    .reduce((acc, r) => {
+      const key = r.fields['Jira Key'];
+      if (!acc.find(x => x.key === key)) acc.push({
+        key,
+        rag: r.fields['RAG Status'],
+        delivery: r.fields['Delivery Status'] || '',
+        pm: r.fields['Posted by'] || '',
+        weekOf: r.fields['Week of'] || '',
+      });
+      return acc;
+    }, []);
+
+  return { pmStats, totalUpdated, total, adoptionPct, ragRows, byKey };
+}
+
+function renderPage({ pmStats, totalUpdated, total, adoptionPct, ragRows }) {
+  const notUpdatedTotal = total - totalUpdated;
+  const now = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  document.getElementById('last-updated-text').textContent = `Updated ${now}`;
+
+  const pmCardsHtml = pmStats.map(({ pm, tickets, updated, pending, pct }) => `
+    <div class="pm-card fade-in ${pct === 100 ? 'is-leader' : ''}">
+      <div class="avatar ${AVATAR_CLASS(pct)}">${INITIALS(pm)}</div>
+      <div class="pm-info">
+        <div class="name">${pm}</div>
+        <div class="count">${tickets.length} initiative${tickets.length !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="bar-area">
+        <div class="bar-track"><div class="bar-fill ${BAR_CLASS(pct)}" style="width:${pct}%"></div></div>
+        <div class="chips">
+          ${updated.map(t => `<span class="chip done">${t}</span>`).join('')}
+          ${pending.map(t => `<span class="chip todo">${t}</span>`).join('')}
+        </div>
+      </div>
+      <div class="pct-badge ${PCT_CLASS(pct)}">${pct}%</div>
+      <span class="status-pill ${PILL_CLASS(pct)}">${PILL_LABEL(pct)}</span>
+    </div>
+  `).join('');
+
+  const ragRowsHtml = ragRows.length > 0 ? ragRows.map(r => `
+    <tr>
+      <td><a class="jira-key" href="https://diligentbrands.atlassian.net/browse/${r.key}" target="_blank">${r.key}</a></td>
+      <td><span class="rag-dot rag-${r.rag?.toLowerCase() || 'green'}">${r.rag || '—'}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${r.pm || '—'}</td>
+      <td class="delivery-text">${r.delivery?.substring(0,120) || '—'}${r.delivery?.length > 120 ? '…' : ''}</td>
+      <td style="font-size:11px;font-family:var(--mono);color:var(--faint)">${r.weekOf || '—'}</td>
+    </tr>
+  `).join('') : `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;font-size:13px;">No updates synced yet</td></tr>`;
+
+  const noUpdatePMs = pmStats.filter(p => p.pending.length > 0);
+  const noUpdateHtml = noUpdatePMs.map(({ pm, pending }) => `
+    <div class="no-update-card">
+      <div class="nu-header">
+        <span class="nu-name">${pm}</span>
+        <span class="nu-count">${pending.length} pending</span>
+      </div>
+      <div class="nu-chips">
+        ${pending.map(t => `<span class="chip todo">${t}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header fade-in">
+      <h1>Q2 Weekly status leaderboard</h1>
+      <p>Platform initiatives · Skill adoption tracker</p>
+      <span class="week-chip">◉ ${getWeekLabel()}</span>
+    </div>
+
+    <div class="summary fade-in">
+      <div class="s-card">
+        <div class="label">Initiatives tracked</div>
+        <div class="value">${total}</div>
+        <div class="sublabel">Q2 committed</div>
+      </div>
+      <div class="s-card c-green">
+        <div class="label">Updated this week</div>
+        <div class="value">${totalUpdated}</div>
+        <div class="sublabel">skill comments synced</div>
+      </div>
+      <div class="s-card c-red">
+        <div class="label">Not updated</div>
+        <div class="value">${notUpdatedTotal}</div>
+        <div class="sublabel">need attention</div>
+      </div>
+      <div class="s-card c-amber">
+        <div class="label">Adoption rate</div>
+        <div class="value">${adoptionPct}%</div>
+        <div class="sublabel">target: 100%</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>PM leaderboard</h2>
+      <span style="font-size:12px;color:var(--muted)">${pmStats.length} PMs · ${total} initiatives</span>
+    </div>
+    <div class="leaderboard">${pmCardsHtml}</div>
+
+    <div class="section-header">
+      <h2>RAG snapshot — updated initiatives</h2>
+    </div>
+    <div class="rag-table-wrap fade-in">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:110px">Ticket</th>
+            <th style="width:100px">RAG</th>
+            <th style="width:130px">PM</th>
+            <th>Delivery status</th>
+            <th style="width:100px">Week of</th>
+          </tr>
+        </thead>
+        <tbody>${ragRowsHtml}</tbody>
+      </table>
+    </div>
+
+    <div class="section-header">
+      <h2>No update yet (${notUpdatedTotal} initiatives)</h2>
+    </div>
+    <div class="no-update-grid fade-in">${noUpdateHtml}</div>
+
+    <div class="footer">
+      auto-synced from airtable · base ${AIRTABLE_BASE_ID} · refresh to update
+    </div>
+  `;
+}
+
+function renderTokenForm() {
+  document.getElementById('main-content').innerHTML = `
+    <div style="max-width:480px; margin:80px auto; text-align:center;">
+      <div style="font-size:32px; margin-bottom:16px;">🔑</div>
+      <h2 style="font-size:20px; font-weight:600; margin-bottom:8px;">Enter your Airtable token</h2>
+      <p style="font-size:14px; color:var(--muted); margin-bottom:24px; line-height:1.6;">
+        Create a token at <a href="https://airtable.com/create/tokens" target="_blank" style="color:#0052CC">airtable.com/create/tokens</a>
+        with <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px">data.records:read</code> scope
+        and access to the Platform Initiatives base.
+      </p>
+      <div style="display:flex;gap:8px;">
+        <input type="password" id="token-input" placeholder="patXXXXXXXXXXXXXX..."
+          style="flex:1;padding:10px 14px;border:1px solid var(--border2);border-radius:8px;font-size:14px;font-family:var(--mono);background:var(--surface);color:var(--text);outline:none;" />
+        <button id="token-btn"
+          style="padding:10px 20px;background:var(--text);color:white;border:none;border-radius:8px;font-size:14px;font-family:var(--sans);font-weight:500;cursor:pointer;">
+          Load
+        </button>
+      </div>
+      <p style="font-size:11px;color:var(--faint);margin-top:12px;">Token is stored in your browser only — never sent anywhere except Airtable.</p>
+    </div>
+  `;
+  document.getElementById('token-btn').addEventListener('click', async () => {
+    const token = document.getElementById('token-input').value.trim();
+    if (!token) return;
+    localStorage.setItem('airtable_token', token);
+    await init(token);
+  });
+  document.getElementById('token-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('token-btn').click();
+  });
+}
+
+async function init(token) {
+  document.getElementById('main-content').innerHTML = `<div class="loading"><div class="spinner"></div><p>Fetching latest data from Airtable...</p></div>`;
+  try {
+    const records = await loadData(token);
+    const data = buildLeaderboard(records);
+    renderPage(data);
+  } catch (e) {
+    localStorage.removeItem('airtable_token');
+    document.getElementById('main-content').innerHTML = `
+      <div style="max-width:480px;margin:80px auto;text-align:center;">
+        <p style="color:var(--red);font-size:14px;margin-bottom:16px;">Could not load data: ${e.message}</p>
+        <button onclick="location.reload()" style="padding:10px 20px;background:var(--text);color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">Try again</button>
+      </div>`;
+  }
+}
+
+const saved = localStorage.getItem('airtable_token');
+if (saved) { init(saved); }
+else { renderTokenForm(); }
+</script>
+</body>
+</html>
